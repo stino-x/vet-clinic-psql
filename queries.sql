@@ -25,10 +25,11 @@ SELECT * FROM animals WHERE name <> 'Gabumon';
 SELECT * FROM animals WHERE weight_kg >= 10.4 AND weight_kg <= 17.3;
 
 --- Task 2 ----
-UPDATE animals
-SET species = 'unspecified';
 -- Start a transaction
 BEGIN TRANSACTION;
+
+UPDATE animals
+SET species = 'unspecified';
 
 -- Update animals with names ending in "mon" to have species as "digimon"
 UPDATE animals

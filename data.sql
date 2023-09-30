@@ -17,9 +17,6 @@ INSERT INTO animals (name, date_of_birth, weight_kg, neutered, escape_attempts)
 VALUES ('Devimon', '2017-05-12', 11.0, true, 5);
 
 ---- TASK 2-------
-UPDATE animals
-SET species = 'unspecified';
-UPDATE 7
 
 -- Inserting the first animal (Charmander) with a negative weight
 INSERT INTO animals (name, id, date_of_birth, weight_kg, neutered, escape_attempts, species)
