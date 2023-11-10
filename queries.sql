@@ -24,6 +24,10 @@ SELECT * FROM animals WHERE name <> 'Gabumon';
 -- 8. Find all animals with a weight between 10.4kg and 17.3kg (inclusive)
 SELECT * FROM animals WHERE weight_kg >= 10.4 AND weight_kg <= 17.3;
 
+
+
+
+
 --- Task 2 ----
 -- Start a transaction
 BEGIN TRANSACTION;
@@ -113,5 +117,128 @@ SELECT species, AVG(escape_attempts) AS avg_escape_attempts
 FROM animals
 WHERE date_of_birth BETWEEN '1990-01-01' AND '2000-12-31'
 GROUP BY species;
+
+
+
+
+
+---TASK 3 -----
+-- What animals belong to Melody Pond?
+SELECT a.name
+FROM animals AS a
+JOIN owners AS o ON a.owner_id = o.id
+WHERE o.full_name = 'Melody Pond';
+
+-- List of all animals that are pokemon (their type is Pokemon).
+SELECT a.name
+FROM animals AS a
+JOIN species AS s ON a.species_id = s.id
+WHERE s.name = 'Pokemon';
+
+-- List all owners and their animals, including those who don't own any animal.
+SELECT o.full_name, COALESCE(array_agg(a.name), ARRAY[]::VARCHAR[]) AS owned_animals
+FROM owners AS o
+LEFT JOIN animals AS a ON o.id = a.owner_id
+GROUP BY o.full_name;
+
+-- How many animals are there per species?
+SELECT s.name AS species, COUNT(*) AS animal_count
+FROM animals AS a
+JOIN species AS s ON a.species_id = s.id
+GROUP BY s.name;
+
+-- List all Digimon owned by Jennifer Orwell.
+SELECT a.name
+FROM animals AS a
+JOIN species AS s ON a.species_id = s.id
+JOIN owners AS o ON a.owner_id = o.id
+WHERE o.full_name = 'Jennifer Orwell' AND s.name = 'Digimon';
+
+-- List all animals owned by Dean Winchester that haven't tried to escape.
+SELECT a.name
+FROM animals AS a
+JOIN owners AS o ON a.owner_id = o.id
+WHERE o.full_name = 'Dean Winchester' AND a.escape_attempts = 0;
+
+-- Who owns the most animals?
+SELECT o.full_name, COUNT(a.id) AS animal_count
+FROM owners AS o
+LEFT JOIN animals AS a ON o.id = a.owner_id
+GROUP BY o.full_name
+ORDER BY animal_count DESC
+LIMIT 1;
+
+--TASK-4 ---
+
+-- 1. Who was the last animal seen by William Tatcher?
+SELECT a.name
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+WHERE v.vet_id = 1
+ORDER BY v.visit_date DESC
+LIMIT 1;
+
+-- 2. How many different animals did Stephanie Mendez see?
+SELECT COUNT(DISTINCT v.animal_id)
+FROM visits v
+WHERE v.vet_id = 3;
+
+-- 3. List all vets and their specialties, including vets with no specialties.
+SELECT v.name, s.name AS specialty
+FROM vets v
+LEFT JOIN specializations vs ON v.id = vs.vet_id
+LEFT JOIN species s ON vs.species_id = s.id;
+
+-- 4. List all animals that visited Stephanie Mendez between April 1st and August 30th, 2020.
+SELECT a.name
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+WHERE v.vet_id = 3
+  AND v.visit_date >= '2020-04-01'
+  AND v.visit_date <= '2020-08-30';
+
+-- 5. What animal has the most visits to vets?
+SELECT a.name, COUNT(*) AS visit_count
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+GROUP BY a.name
+ORDER BY visit_count DESC
+LIMIT 1;
+
+-- 6. Who was Maisy Smith's first visit?
+SELECT a.name
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+WHERE v.vet_id = 2
+ORDER BY v.visit_date
+LIMIT 1;
+
+-- 7. Details for the most recent visit: animal information, vet information, and date of visit.
+SELECT a.name AS animal_name, vet.name AS vet_name, v.visit_date
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+JOIN vets vet ON v.vet_id = vet.id
+WHERE v.visit_date = (SELECT MAX(visit_date) FROM visits);
+
+
+-- 8. How many visits were with a vet that did not specialize in that animal's species?
+SELECT COUNT(*)
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+LEFT JOIN specializations vs ON v.vet_id = vs.vet_id AND a.species_id = vs.species_id
+WHERE vs.species_id IS NULL;
+
+-- 9. What specialty should Maisy Smith consider getting? Look for the species she gets the most.
+SELECT s.name AS specialty
+FROM visits v
+JOIN animals a ON v.animal_id = a.id
+JOIN specializations vs ON v.vet_id = v.vet_id
+JOIN species s ON vs.species_id = s.id
+WHERE v.vet_id = 2
+GROUP BY s.name
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+
+
 
 
